@@ -2,7 +2,7 @@
 library(xgboost)
 library(caret)
 
-setwd("~/GitHub-kszela24/Higgs")
+setwd("~/GitHub-kszela24/higgs-bozon/Szela")
 
 #Reading in training and testing data.
 train = read.csv("training.csv")
@@ -12,12 +12,13 @@ test = read.csv("test.csv")
 levels(train$Label) = c(0, 1)
 train$Label = as.numeric(train$Label) - 1
 
-#Setting the undefined values to NA, and let xgboost deal with them.
+#Setting the undefined values to NA, and letting xgboost deal with them.
 train[train == -999] = NA
 test[test == -999] = NA
 
 #Creating our first engineered feature!  Count the NAs in a row.
-
+train$counts = apply(train, 1, function(x) sum(is.na(x[1:33])))
+test$counts = apply(test, 1, function(x) sum(is.na(x[1:31])))
 
 #Setting the evaluation metric for the xgboost to AUC to begin with, although others may be better
 eval_met = "auc"
@@ -94,7 +95,5 @@ train.y.s = length(train.y[train.y == 1])
 train.y.b = length(train.y[train.y == 0])
 
 train.y.s / (train.y.s + train.y.b)
-
-
 
 
