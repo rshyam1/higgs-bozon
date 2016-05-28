@@ -5,20 +5,25 @@ library(caret)
 setwd("~/GitHub-kszela24/higgs-bozon/Szela")
 
 #Reading in training and testing data.
-train = read.csv("training.csv")
-test = read.csv("test.csv")
+train = as.data.frame(read.csv("training.csv"))
+test = as.data.frame(read.csv("test.csv"))
 
 #Releveling b and s such that b = 0 and s = 1, so that we can do logistic regression on them.
 levels(train$Label) = c(0, 1)
 train$Label = as.numeric(train$Label) - 1
+
+#Creating a vector for our target variable.
+train.y <- as.vector(train$Label)
+train$Label = NULL
+
 
 #Setting the undefined values to NA, and letting xgboost deal with them.
 train[train == -999] = NA
 test[test == -999] = NA
 
 #Creating our first engineered feature!  Count the NAs in a row.
-train$counts = apply(train, 1, function(x) sum(is.na(x[1:33])))
-test$counts = apply(test, 1, function(x) sum(is.na(x[1:31])))
+train$countNA = apply(train, 1, function(x) sum(is.na(x[1:33])))
+test$countNA = apply(test, 1, function(x) sum(is.na(x[1:31])))
 
 #Setting the evaluation metric for the xgboost to AUC to begin with, although others may be better
 eval_met = "auc"
@@ -35,13 +40,22 @@ test$EventId <- NULL
 train.weight <- train$Weight
 train$Weight = NULL
 
+train$TARGET = train.y
 
-#Creating a vector for our target variable.
-train.y <- train$Label
-
+cat("\n## Removing the constants features.\n")
+for (f in names(train)) {
+  if (length(unique(train[[f]])) == 1) {
+    cat(f, "is constant in train. We delete it.\n")
+    train[[f]] <- NULL
+    test[[f]] <- NULL
+  }
+}
 
 #Preparing for the training of the xgboost model.
-train.model <- sparse.model.matrix(Label ~ ., data = train)
+train.model <- sparse.model.matrix(TARGET ~ ., data = as.data.frame(train))
+
+length(train.y)
+
 
 dtrain <- xgb.DMatrix(data = train.model, label = train.y)
 watchlist <- list(train=dtrain)
