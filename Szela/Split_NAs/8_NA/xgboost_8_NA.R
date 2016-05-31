@@ -2,11 +2,11 @@
 library(xgboost)
 library(caret)
 
-setwd("~/GitHub-kszela24/higgs-bozon/Szela/NA_DER_mass_MMC")
+setwd("~/GitHub-kszela24/higgs-bozon/Szela/Split_NAs/8_NA")
 
 #Reading in training and testing data.
-train = as.data.frame(read.csv("train_NA_DER_mass_MMC.csv"))
-test = as.data.frame(read.csv("test_NA_DER_mass_MMC.csv"))
+train = as.data.frame(read.csv("train_8_NA.csv"))
+test = as.data.frame(read.csv("test_8_NA.csv"))
 
 #Releveling b and s such that b = 0 and s = 1, so that we can do logistic regression on them.
 levels(train$Label) = c(0, 1)
@@ -44,12 +44,10 @@ for (f in names(train)) {
   }
 }
 
-write.csv(train, "train_cleaned.csv", row.names = F)
-
-length(unique(train[5,]))
-
 #Preparing for the training of the xgboost model.
 train.model <- sparse.model.matrix(TARGET ~ ., data = as.data.frame(train))
+
+length(train.y)
 
 
 dtrain <- xgb.DMatrix(data = train.model, label = train.y)
@@ -99,10 +97,18 @@ preds.num.s = length(preds[preds > 0.5])
 preds.num.b = length(preds[preds <= 0.5])
 
 preds.num.s / (preds.num.b + preds.num.s)
-#First run, no tuning = 
+#First run, no tuning = 3.09%
 
 train.y.s = length(train.y[train.y == 1])
 train.y.b = length(train.y[train.y == 0])
 
 train.y.s / (train.y.s + train.y.b)
-#Prior probability = 
+#Prior probability = 9.32%
+
+#Checking feature importance
+importance_matrix <- xgb.importance(dimnames(train.model)[[2]], model = clf)
+xgb.plot.importance(importance_matrix)
+
+#Save predictions:
+to_save = data.frame(EventId = test.ID, predictions = preds)
+write.csv(to_save, "predictions_8_NA.csv", row.names = F)

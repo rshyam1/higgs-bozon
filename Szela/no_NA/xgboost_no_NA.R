@@ -64,17 +64,14 @@ watchlist <- list(train=dtrain)
 set.seed(1234)
 param <- list(  objective           = "binary:logistic", 
                 booster             = "gbtree",
-                eval_metric         = eval_met,
-                eta                 = 0.02,
-                max_depth           = 5,
-                subsample           = 0.6815,
-                colsample_bytree    = 0.701
+                eval_metric         = "auc",
+                eta                 = 0.15,
+                max_depth           = 6
 )
 
 clf <- xgb.train(   params              = param, 
                     data                = dtrain, 
-                    nrounds             = 200,
-                    nfolds              = 5,
+                    nrounds             = 360,
                     verbose             = 1,
                     watchlist           = watchlist,
                     maximize            = FALSE
