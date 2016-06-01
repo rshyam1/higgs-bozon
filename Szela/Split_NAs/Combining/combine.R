@@ -20,10 +20,12 @@ preds_sorted = preds_total[order(preds_total$predictions), ]
 #Ranking our predictions
 preds_sorted$RankOrder = 1:550000
 
+threshold = 550000 - as.integer(0.15 * 550000)
+
 #Classifying our predictions
-preds_sorted$Class = ifelse(preds_sorted$predictions <= 0.5, "b", "s")
+preds_sorted$Class = ifelse(preds_sorted$RankOrder <= threshold, "b", "s")
 
 #Getting rid of predictions and saving to a csv.
 preds_sorted$predictions = NULL
 
-write.csv(preds_sorted, "submission_1.csv", row.names = F)
+write.csv(preds_sorted, "submission_6_correct.csv", row.names = F)

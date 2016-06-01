@@ -17,7 +17,7 @@ train.y <- as.vector(train$Label)
 train$Label = NULL
 
 #Setting the evaluation metric for the xgboost to AUC to begin with, although others may be better
-eval_met = "auc"
+eval_met = "ams@0.15"
 
 #Removing the training weight and training and testing eventID.
 #Don't currently know what to do with the weight, so removing it preliminarily.
@@ -30,6 +30,10 @@ test$EventId <- NULL
 
 train.weight <- train$Weight
 train$Weight = NULL
+
+sumwpos <- sum(train.weight * (train.y==1.0))
+sumwneg <- sum(train.weight * (train.y==0.0))
+print(paste("weight statistics: wpos=", sumwpos, "wneg=", sumwneg, "ratio=", sumwneg / sumwpos))
 
 train$TARGET = train.y
 
@@ -50,7 +54,7 @@ train.model <- sparse.model.matrix(TARGET ~ ., data = as.data.frame(train))
 length(train.y)
 
 
-dtrain <- xgb.DMatrix(data = train.model, label = train.y)
+dtrain <- xgb.DMatrix(data = train.model, label = train.y, weight = train.weight)
 watchlist <- list(train=dtrain)
 
 #Creating the params and training the model.
@@ -62,19 +66,17 @@ watchlist <- list(train=dtrain)
 #model may likely be overfitting (all preliminary).
 #Set seed to 1234 for reproducibility (DONT FORGET TO DO THIS FOR YOUR OWN MODELS).
 set.seed(1234)
-param <- list(  objective           = "binary:logistic", 
+param <- list(  objective           = "binary:logitraw", 
                 booster             = "gbtree",
+                "scale_pos_weight" = sumwneg / sumwpos,
                 eval_metric         = eval_met,
-                eta                 = 0.02,
-                max_depth           = 5,
-                subsample           = 0.6815,
-                colsample_bytree    = 0.701
+                eta                 = 0.05,
+                max_depth           = 6
 )
 
 clf <- xgb.train(   params              = param, 
                     data                = dtrain, 
-                    nrounds             = 200,
-                    nfolds              = 5,
+                    nrounds             = 100,
                     verbose             = 1,
                     watchlist           = watchlist,
                     maximize            = FALSE
@@ -97,13 +99,13 @@ preds.num.s = length(preds[preds > 0.5])
 preds.num.b = length(preds[preds <= 0.5])
 
 preds.num.s / (preds.num.b + preds.num.s)
-#First run, no tuning = 3.09%
+#First run, no tuning = 7.55%
 
 train.y.s = length(train.y[train.y == 1])
 train.y.b = length(train.y[train.y == 0])
 
 train.y.s / (train.y.s + train.y.b)
-#Prior probability = 9.32%
+#Prior probability = 12.89%
 
 #Checking feature importance
 importance_matrix <- xgb.importance(dimnames(train.model)[[2]], model = clf)
@@ -111,4 +113,4 @@ xgb.plot.importance(importance_matrix)
 
 #Save predictions:
 to_save = data.frame(EventId = test.ID, predictions = preds)
-write.csv(to_save, "predictions_8_NA.csv", row.names = F)
+write.csv(to_save, "predictions_8_NA_weighted.csv", row.names = F)
