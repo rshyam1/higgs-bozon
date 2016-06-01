@@ -42,12 +42,12 @@ test$EventId <- NULL
 train.weight <- train$Weight
 train$Weight = NULL
 
-#train.NA_to_0 = train
-#test.NA_to_0 = test
-#train.NA_to_0[train.NA_to_0 == -999.0] <- 0
-#test.NA_to_0[test.NA_to_0 == -999.0] <- 0
-#train$sum = rowSums(train.NA_to_0)
-#test$sum = rowSums(test.NA_to_0)
+train.NA_to_0 = train
+test.NA_to_0 = test
+train.NA_to_0[train.NA_to_0 == -999.0] <- 0
+test.NA_to_0[test.NA_to_0 == -999.0] <- 0
+train$sum = rowSums(train.NA_to_0)
+test$sum = rowSums(test.NA_to_0)
 
 sumwpos <- sum(train.weight * (train.y==1.0))
 sumwneg <- sum(train.weight * (train.y==0.0))
@@ -76,7 +76,7 @@ dtrain <- xgb.DMatrix(data = train.model, label = train.y, missing = -999, weigh
 watchlist <- list(train=dtrain)
 
 set.seed(1234)
-param <- list(  objective           = "binary:logistic", 
+param <- list(  objective           = "binary:logitraw", 
                 "scale_pos_weight" = sumwneg / sumwpos,
                 booster             = "gbtree",
                 eval_metric         = "ams@0.15",
@@ -111,7 +111,7 @@ submission_sorted$Class = ifelse(submission_sorted$RankOrder <= threshold, "b", 
 save_predictions = submission_sorted$predictions
 submission_sorted$predictions = NULL
 
-write.csv(submission_sorted, "submission_9.csv", row.names = F)
+write.csv(submission_sorted, "submission_11.csv", row.names = F)
 
 #Checking feature importance
 importance_matrix <- xgb.importance(dimnames(train.model)[[2]], model = clf)
