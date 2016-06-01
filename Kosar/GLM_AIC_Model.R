@@ -96,6 +96,8 @@ model.full.prijet_0 = glm(Label ~ ., family = "binomial", data = train_logistic)
 scope = list(lower = formula(model.empty.prijet_0), upper = formula(model.full.prijet_0))
 
 forwardAIC = step(model.empty.prijet_0, scope, direction = "forward", k = 2) #AIC = 78217
+forwardAIC = step(model.full.prijet_0, direction = "forward", k = 2) #AIC = 78228. So the reduced model gives a better AIC then the full model
+
 summary(forwardAIC)
 plot(forwardAIC)
 
@@ -149,14 +151,16 @@ colnames(predictions.logit.prijet_2_3) = c("EventId", "Label")
 
 write.csv(predictions.logit.prijet_2_3, file = "Pred_Logit_Prijet_2_3.csv")
 
+
+#Combining the results for submission
 total = rbind(predictions.logit.prijet_0, predictions.logit.prijet_1, predictions.logit.prijet_2_3)
-total_sorted = total[order(total$Label),]
+total_sorted = total[order(total$Label),] #sorting the results
 
-total_sorted$RankOrder = 1:length(total_sorted$Label)
+total_sorted$RankOrder = 1:length(total_sorted$Label) #creating the RankOrder column
 
-threshold = length(total_sorted$Label) - as.integer(0.15*length(total_sorted$Label))
+threshold = length(total_sorted$Label) - as.integer(0.15*length(total_sorted$Label)) #setting the threshold of 15%
 
-total_sorted$Class = ifelse(total_sorted$RankOrder <= threshold, "b", "s")
+total_sorted$Class = ifelse(total_sorted$RankOrder <= threshold, "b", "s") 
 total_sorted$Label = NULL
 
 write.csv(total_sorted, file = "model_AIC.csv", row.names = FALSE)
