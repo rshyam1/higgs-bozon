@@ -9,6 +9,9 @@ setwd("~/GitHub-kszela24/higgs-bozon/Szela/Single_Model/cross_validation")
 train.cv = as.data.frame(read.csv("training.csv"))
 test.bagging = as.data.frame(read.csv("test.csv"))
 
+train.cv = train.cv[, -c(17, 20, 22, 27, 30)]
+test.bagging = test.bagging[, -c(17, 20, 22, 27, 30)]
+
 labels = train.cv$Label
 
 #Releveling b and s such that b = 0 and s = 1, so that we can do logistic regression on them.
@@ -135,9 +138,14 @@ test.preds.avg = (test.preds1$predictions + test.preds2$predictions + test.preds
 
 train.cv.extra = train.cv.extra[order(train.cv.extra$EventId), ]$predictions
 
+write.csv(train.cv.extra, "predictions_stacked_0_train.csv", row.names = F)
+
 #Reading in training and testing data.
 train = as.data.frame(read.csv("training.csv"))
 test = as.data.frame(read.csv("test.csv"))
+
+train = train[, -c(17, 20, 22, 27, 30)]
+test = test[, -c(17, 20, 22, 27, 30)]
 
 #Releveling b and s such that b = 0 and s = 1, so that we can do logistic regression on them.
 levels(train$Label) = c(0, 1)
@@ -243,5 +251,5 @@ submission_sorted$Class = ifelse(submission_sorted$RankOrder <= threshold, "b", 
 save_predictions = submission_sorted$predictions
 submission_sorted$predictions = NULL
 
-write.csv(submission, "predictions_stacked_0.csv", row.names = F)
+write.csv(submission, "predictions_stacked_0_test.csv", row.names = F)
 write.csv(submission_sorted, "submission_stacked_0.csv", row.names = F)
