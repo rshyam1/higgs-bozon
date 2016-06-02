@@ -75,7 +75,7 @@ def AMS_metric(solution, submission):
     Submission File header: EventId, RankOrder, Class
     """
     
-    numEvents = 50000 # number of events = size of test set
+    numEvents = 125000 # number of events = size of test set
     
     # solutionDict: key=eventId, value=(label, class)
     solutionDict = create_solution_dictionary(solution)
@@ -103,12 +103,13 @@ if __name__ == "__main__":
 
     # enter path and file names here    
     path = ""
-
-    for i in range(1, 6):
-        solutionFile = "solution_cv_" + str(i) +"_1234.csv"
-        submissionFile = "cv_" + str(i) +"_1234.csv"
+    seeds = [0, 1111, 1234]
+    for i in range(1, 3):
+    	for j in seeds:
+        	solutionFile = "solution_cv_" + str(i) +"_" + str(j) + ".csv"
+        	submissionFile = "cv_" + str(i) +"_" + str(j) + ".csv"
     
-        AMS_metric(solutionFile, submissionFile)
+        	AMS_metric(solutionFile, submissionFile)
     avg = sum(amss) / float(len(amss))
     print 'AVG AMS = ' + str(avg)
     

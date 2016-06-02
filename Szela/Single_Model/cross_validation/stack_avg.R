@@ -23,4 +23,4 @@ submission_sorted$Class = ifelse(submission_sorted$RankOrder <= threshold, "b", 
 save_predictions = submission_sorted$predictions
 submission_sorted$predictions = NULL
 
-write.csv(submission_sorted, "submission_stacked_avg_no_phi.csv", row.names = F)
+write.csv(submission_sorted, "submission_stacked_avg_no_phi_220_rounds.csv", row.names = F)
