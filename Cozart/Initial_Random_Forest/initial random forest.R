@@ -45,6 +45,8 @@ weightRank = rank(rfTestPred[,2], ties.method= "random")
 
 submission = data.frame(EventId = testId, RankOrder = weightRank, Class = predicted)
 
+write.csv(submission, "rf_submission2.csv", row.names=FALSE)
+
 #reorder by rank
 submission = submission[order(submission[,2]),]
 
