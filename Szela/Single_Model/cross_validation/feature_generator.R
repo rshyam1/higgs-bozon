@@ -11,8 +11,9 @@ seeds = c(0, 1111, 1234)
 train.cv = as.data.frame(read.csv("training.csv"))
 test.bagging = as.data.frame(read.csv("test.csv"))
 
-train.cv = train.cv[, -c(17, 20, 22, 27, 30)]
-test.bagging = test.bagging[, -c(17, 20, 22, 27, 30)]
+
+train.cv = train.cv[, -c(17, 20, 22, 27, 29, 30)]
+test.bagging = test.bagging[, -c(17, 20, 22, 27, 29, 30)]
 
 labels = train.cv$Label
 
@@ -81,7 +82,7 @@ for (the_seed in seeds) {
     
     clf <- xgb.train(   params              = param, 
                         data                = dtrain, 
-                        nrounds             = 210,
+                        nrounds             = 220,
                         verbose             = 1,
                         watchlist           = watchlist,
                         maximize            = FALSE

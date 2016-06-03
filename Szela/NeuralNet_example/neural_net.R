@@ -43,12 +43,12 @@ test$EventId <- NULL
 train.weight <- train$Weight
 train$Weight = NULL
 
-train.NA_to_0 = train
-test.NA_to_0 = test
-train.NA_to_0[train.NA_to_0 == -999.0] <- 0
-test.NA_to_0[test.NA_to_0 == -999.0] <- 0
-train$sum = rowSums(train.NA_to_0)
-test$sum = rowSums(test.NA_to_0)
+#train.NA_to_0 = train
+#test.NA_to_0 = test
+#train.NA_to_0[train.NA_to_0 == -999.0] <- 0
+#test.NA_to_0[test.NA_to_0 == -999.0] <- 0
+#train$sum = rowSums(train.NA_to_0)
+#test$sum = rowSums(test.NA_to_0)
 
 sumwpos <- sum(train.weight * (train.y==1.0))
 sumwneg <- sum(train.weight * (train.y==0.0))

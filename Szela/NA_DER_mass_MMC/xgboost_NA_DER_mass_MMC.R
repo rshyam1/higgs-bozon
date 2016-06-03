@@ -8,6 +8,9 @@ setwd("~/GitHub-kszela24/higgs-bozon/Szela/NA_DER_mass_MMC")
 train = as.data.frame(read.csv("train_NA_DER_mass_MMC.csv"))
 test = as.data.frame(read.csv("test_NA_DER_mass_MMC.csv"))
 
+train[is.na(train)] = -999
+test[is.na(test)] = -999
+
 #Releveling b and s such that b = 0 and s = 1, so that we can do logistic regression on them.
 levels(train$Label) = c(0, 1)
 train$Label = as.numeric(train$Label) - 1
@@ -52,7 +55,7 @@ length(unique(train[5,]))
 train.model <- sparse.model.matrix(TARGET ~ ., data = as.data.frame(train))
 
 
-dtrain <- xgb.DMatrix(data = train.model, label = train.y)
+dtrain <- xgb.DMatrix(data = train.model, label = train.y, missing = -999)
 watchlist <- list(train=dtrain)
 
 #Creating the params and training the model.
@@ -106,3 +109,7 @@ train.y.b = length(train.y[train.y == 0])
 
 train.y.s / (train.y.s + train.y.b)
 #Prior probability = 
+
+#Checking feature importance
+importance_matrix <- xgb.importance(dimnames(train.model)[[2]], model = clf)
+xgb.plot.importance(importance_matrix)
