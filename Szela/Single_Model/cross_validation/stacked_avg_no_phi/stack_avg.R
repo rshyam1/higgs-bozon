@@ -13,9 +13,12 @@ preds_1234_sorted = stacked_preds_1234[order(stacked_preds_1234$EventId), ]
 
 preds = (preds_0_sorted$predictions + preds_1111_sorted$predictions + preds_1234_sorted$predictions) / 3
 
+ada_frame = as.data.frame(read.csv("to_kyle_adaboost.csv"))
+summary(ada_frame)
+
 preds_normalized = range01(preds)
 summary(preds_normalized)
-preds = preds_normalized + (rf_preds$RankOrder * 0.09)
+preds = (preds_normalized * 1.01) + (rf_preds$RankOrder * 0) + (ada_frame$Predictions * 0.07)
 
 summary(preds)
 preds_sorted = data.frame(EventId = preds_0_sorted$EventId,
