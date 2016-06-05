@@ -1,11 +1,15 @@
 library(xgboost)
 library(caret)
-
+library(VIM)
 setwd("~/GitHub-kszela24/higgs-bozon/Szela/Single_Model")
 
 #Reading in training and testing data.
 train = as.data.frame(read.csv("training.csv"))
 test = as.data.frame(read.csv("test.csv"))
+
+train[train == -999.0] <- NA
+
+summary.aggr(train, bars = F, combined = T)
 
 #Releveling b and s such that b = 0 and s = 1, so that we can do logistic regression on them.
 levels(train$Label) = c(0, 1)
